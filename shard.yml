@@ -7,3 +7,5 @@ dependencies:
   toml:
     github: crystal-community/toml.cr
     branch: master
+  raze:
+    github: samueleaton/raze

@@ -1,5 +1,6 @@
 require "toml"   # reads our TOML configuration files - see https://github.com/crystal-community/toml.cr
 require "tasker" # this helps us schedule stuff - see https://github.com/spider-gazelle/tasker
+require "raze"   # we add the Raze framework so that we can handle alert acknowledgements
 require "./startup_checks.cr"
 
 
@@ -72,9 +73,14 @@ CHECKS.each do |host,hash_of_checks|
 	end
 end
 
+Raze.config.port = 3000
 
-
-# loop forever! (but pause every second so we don't kill the cpu)
-while true
-	sleep 1
+post "/acknowledge" do |ctx|
+	# source: https://github.com/samueleaton/raze/issues/3
+	body = ctx.request.body.not_nil!.gets_to_end
+	json = JSON.parse(body)
+	puts json.inspect
+	"#{json.inspect}"
 end
+
+Raze.run

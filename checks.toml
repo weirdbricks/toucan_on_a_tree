@@ -1,9 +1,9 @@
 [localhost.check1]
 description      = "google ping"
 command_string   = "/usr/lib/nagios/plugins/check_http -H www.google.com -t10 -c5"
-interval_seconds = 5
+interval_seconds = 20 
 
 [localhost.check2]
 description      = "bing ping"
 command_string   = "/usr/lib/nagios/plugins/check_http -H www.bing.com -t10 -c5"
-interval_seconds = 5
+interval_seconds = 20
