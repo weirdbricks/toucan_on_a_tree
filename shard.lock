@@ -1,0 +1,18 @@
+version: 1.0
+shards:
+  bisect:
+    github: spider-gazelle/bisect
+    version: 1.1.1
+
+  cron_parser:
+    github: kostya/cron_parser
+    version: 0.2.0
+
+  tasker:
+    github: spider-gazelle/tasker
+    version: 1.2.0
+
+  toml:
+    github: crystal-community/toml.cr
+    commit: 5935d7f5afeed8ba126418a9f85691b4067db85c
+

@@ -1,0 +1,9 @@
+name: toucan_on_a_tree 
+version: 0.0.1
+
+dependencies:
+  tasker:
+    github: spider-gazelle/tasker 
+  toml:
+    github: crystal-community/toml.cr
+    branch: master
