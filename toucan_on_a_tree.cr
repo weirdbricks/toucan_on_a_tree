@@ -41,15 +41,17 @@ def reset(status_hash,unique_name)
 end
 
 def check_executor(status_hash,unique_name,command_string)
-	puts "#{Time.now} - Running check \"#{command_string}\"..."
+	puts "#{INFO} - #{Time.now} - Running check \"#{command_string}\"..."
 	output      = `#{command_string}`
 	exit_status = $?.exit_status
 	if exit_status == 0
 		reset(status_hash,unique_name)
+		puts "#{OK} - #{Time.now} - Check \"#{command_string}\" result: #{exit_status} - current count: #{status_hash[unique_name]}"
 	else
 		increment_failures_by_one(status_hash,unique_name)
+		puts "#{FAIL} - #{Time.now} - Check \"#{command_string}\" result: #{exit_status} - current count: #{status_hash[unique_name]}"
 	end
-	puts "#{Time.now} - Check \"#{command_string}\" result: #{exit_status} - current count: #{status_hash[unique_name]}"
+#	puts "#{Time.now} - Check \"#{command_string}\" result: #{exit_status} - current count: #{status_hash[unique_name]}"
 
 end
 
