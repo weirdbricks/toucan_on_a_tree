@@ -11,8 +11,8 @@ FAIL = "[ FAIL ]"
 
 SETTINGS_FILE = "./settings.toml" # the settings file
 CHECKS_FILE   = "./checks.toml"   # load all checks from this file
-status = Hash(String, Int32).new(0)
-
+#status = Hash(String, Int32).new(0)
+status = Hash(String, Hash(String, Int32)).new
 ##########################################################################################
 # Include functions from files
 ##########################################################################################
@@ -33,18 +33,29 @@ CHECKS = TOML.parse_file(CHECKS_FILE).as(Hash)
 # use this function to increase the count for a check
 # (add the check to the hash if not already there)
 def increment_failures_by_one(status_hash,unique_name)
-	status_hash[unique_name]=status_hash[unique_name]+1
+	status_hash[unique_name]["fail_count"]=status_hash[unique_name]["fail_count"]+1
 end
 
 # use this function to reset the count for a check
 def reset(status_hash,unique_name)
-	status_hash[unique_name]=0
+	status_hash[unique_name]["fail_count"]=0
 end
 
-def check_executor(status_hash,unique_name,command_string)
+def get_fail_count(status_hash,unique_name)
+	return status_hash[unique_name]["fail_count"]
+end
+
+def init_hash_key(status_hash,unique_name,count_to_alert_on)
+	unless status_hash.has_key?(unique_name)
+		status_hash[unique_name]={"fail_count" => 0, "count_to_alert_on" => count_to_alert_on}
+	end
+end
+
+def check_executor(status_hash,unique_name,command_string,count_to_alert_on)
 	puts "#{INFO} - #{Time.now} - Running check \"#{command_string}\"..."
 	output      = `#{command_string}`
 	exit_status = $?.exit_status
+	init_hash_key(status_hash,unique_name,count_to_alert_on)
 	if exit_status == 0
 		reset(status_hash,unique_name)
 		puts "#{OK} - #{Time.now} - Check \"#{command_string}\" result: #{exit_status} - current count: #{status_hash[unique_name]}"
@@ -52,7 +63,12 @@ def check_executor(status_hash,unique_name,command_string)
 		increment_failures_by_one(status_hash,unique_name)
 		puts "#{FAIL} - #{Time.now} - Check \"#{command_string}\" result: #{exit_status} - current count: #{status_hash[unique_name]}"
 	end
-#	puts "#{Time.now} - Check \"#{command_string}\" result: #{exit_status} - current count: #{status_hash[unique_name]}"
+
+	current_fail_count=get_fail_count(status_hash,unique_name)
+
+	if current_fail_count >= count_to_alert_on
+		puts "alerrrrrrrttttt"
+	end
 end
 
 def send_slack_message(message_text,slack_channel,webhook_url)
@@ -75,27 +91,33 @@ CHECKS.each do |host,hash_of_checks|
 	checks.each do |check,parameters|
 		number_of_checks=number_of_checks+1
 		puts "#{INFO} - Importing check #{number_of_checks}/#{max_number_of_checks}"
-		unique_name      = "#{host}_#{check}"
-		description      = parameters.as(Hash)["description"]
-		command_string   = parameters.as(Hash)["command_string"]
-		interval_seconds = parameters.as(Hash)["interval_seconds"]
+		unique_name       = "#{host}_#{check}"
+		description       = parameters.as(Hash)["description"]
+		command_string    = parameters.as(Hash)["command_string"]
+		interval_seconds  = parameters.as(Hash)["interval_seconds"]
+		count_to_alert_on = parameters.as(Hash)["count_to_alert_on"].to_s.to_i32 #ugly, but it was the only way I could find to cast it to the right type
 
 		# apply the schedule from the TOML file
-		schedule.every(("#{interval_seconds}".to_i).seconds) { check_executor(status,unique_name,command_string) }
+		schedule.every(("#{interval_seconds}".to_i).seconds) { check_executor(status,unique_name,command_string,count_to_alert_on) }
 		# also if it's the first run, run them right now so we're all caught up yo
-            	schedule.in(1.seconds) { check_executor(status,unique_name,command_string) } 
+            	schedule.in(1.seconds) { check_executor(status,unique_name,command_string,count_to_alert_on) } 
 	end
 end
 
-Raze.config.port = 3000
+#Raze.config.port = 3000
 
-post "/acknowledge" do |ctx|
-	# source: https://github.com/samueleaton/raze/issues/3
-	body = ctx.request.body.not_nil!.gets_to_end
-	json = JSON.parse(body)
-	puts json.inspect
-	"#{json.inspect}"
-end
+#post "/acknowledge" do |ctx|
+#	# source: https://github.com/samueleaton/raze/issues/3
+#	body = ctx.request.body.not_nil!.gets_to_end
+#	json = JSON.parse(body)
+#	puts json.inspect
+#	"#{json.inspect}"
+#end
 
 #Raze.run
-send_slack_message("yo","toucan-on-a-tree","https://hooks.slack.com/services/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")
+#send_slack_message("yo","toucan-on-a-tree","https://hooks.slack.com/services/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")
+
+loop do
+	pp status
+	sleep 5
+end
