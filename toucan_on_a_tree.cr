@@ -58,11 +58,19 @@ end
 # create a scheduler
 schedule = Tasker.instance
 
+
+max_counter=CHECKS.keys.size
+counter=0
 # go through the TOML hash and add checks to the scheduler
 CHECKS.each do |host,hash_of_checks|
-	puts "#{INFO} - Importing checks for \"#{host}\"..."
+	counter=counter+1
+	puts "#{INFO} - Host: #{counter}/#{max_counter} - Importing checks for \"#{host}\"..."
 	checks=hash_of_checks.as(Hash)
+	max_number_of_checks=checks.keys.size
+	number_of_checks=0
 	checks.each do |check,parameters|
+		number_of_checks=number_of_checks+1
+		puts "#{INFO} - Importing check #{number_of_checks}/#{max_number_of_checks}"
 		unique_name      = "#{host}_#{check}"
 		description      = parameters.as(Hash)["description"]
 		command_string   = parameters.as(Hash)["command_string"]
