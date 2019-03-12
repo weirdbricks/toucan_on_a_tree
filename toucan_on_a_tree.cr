@@ -1,15 +1,16 @@
 require "toml"   # reads our TOML configuration files - see https://github.com/crystal-community/toml.cr
 require "tasker" # this helps us schedule stuff - see https://github.com/spider-gazelle/tasker
 require "raze"   # we add the Raze framework so that we can handle alert acknowledgements
+require "slack"  # we use slack to send notifications to a slack channel
 require "./startup_checks.cr"
 
-
-# settings some variables to make things look pretty
+# setting some variables to make things look pretty
 OK   = "[  OK  ]"
 INFO = "[ INFO ]"
 FAIL = "[ FAIL ]"
-SETTINGS_FILE = "./settings.toml"
-CHECKS_FILE   = "./checks.toml"
+
+SETTINGS_FILE = "./settings.toml" # the settings file
+CHECKS_FILE   = "./checks.toml"   # load all checks from this file
 status = Hash(String, Int32).new(0)
 
 ##########################################################################################
@@ -52,12 +53,15 @@ def check_executor(status_hash,unique_name,command_string)
 		puts "#{FAIL} - #{Time.now} - Check \"#{command_string}\" result: #{exit_status} - current count: #{status_hash[unique_name]}"
 	end
 #	puts "#{Time.now} - Check \"#{command_string}\" result: #{exit_status} - current count: #{status_hash[unique_name]}"
+end
 
+def send_slack_message(message_text,slack_channel,webhook_url)
+	message = Slack::Message.new(message_text, channel: slack_channel)
+	message.send_to_hook webhook_url
 end
 
 # create a scheduler
 schedule = Tasker.instance
-
 
 max_counter=CHECKS.keys.size
 counter=0
@@ -93,4 +97,5 @@ post "/acknowledge" do |ctx|
 	"#{json.inspect}"
 end
 
-Raze.run
+#Raze.run
+send_slack_message("yo","toucan-on-a-tree","https://hooks.slack.com/services/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")
