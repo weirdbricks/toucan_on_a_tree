@@ -3,9 +3,14 @@ version: 0.0.1
 
 dependencies:
   tasker:
-    github: spider-gazelle/tasker 
+    github: spider-gazelle/tasker
+    branch: master
   toml:
     github: crystal-community/toml.cr
     branch: master
   raze:
     github: samueleaton/raze
+    branch: master
+  slack:
+    github: manastech/crystal_slack
+    branch: master

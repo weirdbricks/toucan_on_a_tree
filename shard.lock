@@ -18,11 +18,15 @@ shards:
 
   raze:
     github: samueleaton/raze
-    version: 0.3.0
+    commit: 1e63828734e0d96a3ef999876765faa66d8736c5
+
+  slack:
+    github: manastech/crystal_slack
+    commit: c12f5829ca8acdfc9e27744600fe19adaf4e0cd1
 
   tasker:
     github: spider-gazelle/tasker
-    version: 1.2.0
+    commit: 78a25476e92261336fcd08f2c24f715f996a9219
 
   toml:
     github: crystal-community/toml.cr
