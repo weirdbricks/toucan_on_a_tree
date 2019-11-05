@@ -5,10 +5,10 @@ module StartupChecks
 	def check_if_file_exists(filename)
 		puts "#{INFO} - Check if we can get the \"#{filename}\" file..."
 		if File.file?(filename)
-		        puts "#{OK} - The file \"#{filename}\" exists"
+			puts "#{OK} - The file \"#{filename}\" exists"
 		else
-		        puts "#{FAIL} - Sorry, I couldn't find the file \"#{filename}\"."
-		        exit 1
+			puts "#{FAIL} - Sorry, I couldn't find the file \"#{filename}\"."
+			exit 1
 		end
 
 	end
@@ -18,12 +18,23 @@ module StartupChecks
 		puts "#{INFO} - Check if we can get the hostname..."
 		hostname=System.hostname
 		if hostname.empty?
-		        puts "#{FAIL} - Sorry, I cannot get the hostname :("
-		        exit 1
+			puts "#{FAIL} - Sorry, I cannot get the hostname :("
+			exit 1
 		else
-		        puts "#{OK} - I got the hostname: \"#{hostname}\""
+			puts "#{OK} - I got the hostname: \"#{hostname}\""
 		end
 		return hostname
+	end
+
+	# check if we can connect to redis
+	def redis_check(redis_host,redis_port)
+		puts "#{INFO} - Attempting to connect to Redis at: #{redis_host}:#{redis_port}..."
+		begin
+			redis = Redis.new(host: redis_host, port: redis_port)
+		rescue
+			abort "#{FAIL} - I cannot connect to Redis at: #{redis_host}:#{redis_port} - Is Redis running?"
+		end
+		puts "#{OK} - Successfully connected to Redis!"
 	end
 
 end

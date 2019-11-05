@@ -1,17 +1,6 @@
 module CheckRunnerFunctions 
 	extend self
 
-	# check if we can connect to redis
-	def redis_check(redis_host,redis_port)
-		puts "#{INFO} - Attempting to connect to Redis at: #{redis_host}:#{redis_port}..."
-		begin
-			redis = Redis.new(host: redis_host, port: redis_port)
-		rescue
-			abort "#{FAIL} - I cannot connect to Redis at: #{redis_host}:#{redis_port} - Is Redis running?"
-		end
-		puts "#{OK} - Successfully connected to Redis!"
-	end
-
 	def grab_next_check_from_redis(redis_host, redis_port)
 		# open connection to redis
                 redis = Redis.new(host: redis_host, port: redis_port)
