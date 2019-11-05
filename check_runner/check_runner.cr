@@ -13,7 +13,6 @@ FAIL = "[ FAIL ]"
 WARN = "[ WARN ]"
 
 SETTINGS_FILE = "./settings.toml" # the settings file
-CHECKS_FILE   = "./checks.toml"   # load all checks from this file
 
 ##########################################################################################
 # Include functions from files
@@ -29,9 +28,6 @@ include CheckRunnerFunctions
 
 # the check_if_file_exists function is in ../startup_checks.cr
 check_if_file_exists(SETTINGS_FILE)
-
-puts "#{INFO} - Parsing \"#{CHECKS_FILE}\" - \"checks\" file..."
-CHECKS = TOML.parse_file(CHECKS_FILE).as(Hash)
 
 # see if we can connect to Redis - this function is in ./scheduler_checks_functions.cr
 redis_host="127.0.0.1"
