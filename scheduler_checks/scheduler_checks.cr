@@ -4,7 +4,7 @@ require "redis"    # we'll use Redis as our central backend - see https://github
 require "popcorn"  # we use this to simplify type conversions - see https://github.com/icyleaf/popcorn
 require "json"     # we use this to convert our hashes into JSON for storing them into Redis
 
-require "./startup_checks.cr"
+require "../startup_checks.cr"
 require "./scheduler_checks_functions.cr"
 
 # setting some variables to make things look pretty
@@ -23,12 +23,14 @@ CHECKS_FILE   = "./checks.toml"   # load all checks from this file
 # include functions from the ./startup_checks.cr file
 include StartupChecks
 include SchedulerRedis
+
 ##########################################################################################
 # Startup checks
 ##########################################################################################
 
-# the check_if_settings_file_exists function is in ./startup_checks.cr
-check_if_settings_file_exists(CHECKS_FILE)
+# the check_if_file_exists function is in ../startup_checks.cr
+check_if_file_exists(SETTINGS_FILE)
+check_if_file_exists(CHECKS_FILE)
 
 puts "#{INFO} - Parsing \"#{CHECKS_FILE}\" - \"checks\" file..."
 CHECKS = TOML.parse_file(CHECKS_FILE).as(Hash)
@@ -37,6 +39,10 @@ CHECKS = TOML.parse_file(CHECKS_FILE).as(Hash)
 redis_host="127.0.0.1"
 redis_port=Popcorn.to_int("6379")
 redis_check(redis_host,redis_port)
+
+##########################################################################################
+# Schedule checks 
+##########################################################################################
 
 # create a scheduler
 schedule = Tasker.instance
@@ -81,7 +87,7 @@ CHECKS.each do |host,hash_of_checks|
                                 puts "#{WARN} - The number of scheduled checks for \"#{unique_name}\" is too high - I'm not going to schedule an additional test!"
 				next
 			end
-			puts "#{INFO} - Queueing check \"#{unique_name}\" (Initial Check) seconds ..."
+			puts "#{INFO} - Queueing check \"#{unique_name}\" - Interval seconds: #{interval_seconds} ..."
 			queue_a_check_in_redis(redis_host,redis_port,jsonized_check)
 		}
 

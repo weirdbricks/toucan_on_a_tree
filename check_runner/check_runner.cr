@@ -3,7 +3,7 @@ require "redis"    # we'll use Redis as our central backend - see https://github
 require "popcorn"  # we use this to simplify type conversions - see https://github.com/icyleaf/popcorn
 require "json"     # we use this to convert our hashes into JSON for storing them into Redis
 
-require "./startup_checks.cr"
+require "../startup_checks.cr"
 require "./check_runner_functions.cr"
 
 # setting some variables to make things look pretty
@@ -14,8 +14,7 @@ WARN = "[ WARN ]"
 
 SETTINGS_FILE = "./settings.toml" # the settings file
 CHECKS_FILE   = "./checks.toml"   # load all checks from this file
-#status = Hash(String, Int32).new(0)
-status = Hash(String, Hash(String, Int32)).new
+
 ##########################################################################################
 # Include functions from files
 ##########################################################################################
@@ -28,8 +27,8 @@ include CheckRunnerFunctions
 # Startup checks
 ##########################################################################################
 
-# the check_if_settings_file_exists function is in ./startup_checks.cr
-check_if_settings_file_exists(CHECKS_FILE)
+# the check_if_file_exists function is in ../startup_checks.cr
+check_if_file_exists(SETTINGS_FILE)
 
 puts "#{INFO} - Parsing \"#{CHECKS_FILE}\" - \"checks\" file..."
 CHECKS = TOML.parse_file(CHECKS_FILE).as(Hash)
@@ -38,6 +37,10 @@ CHECKS = TOML.parse_file(CHECKS_FILE).as(Hash)
 redis_host="127.0.0.1"
 redis_port=Popcorn.to_int("6379")
 redis_check(redis_host,redis_port)
+
+##########################################################################################
+# Execute checks
+##########################################################################################
 
 loop do
 	# get the next check from Redis and store it in the retrieved_check_in_json variable

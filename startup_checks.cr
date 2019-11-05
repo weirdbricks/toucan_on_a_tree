@@ -1,13 +1,13 @@
 module StartupChecks
 	extend self
 
-	# check if we can get the settings file
-	def check_if_settings_file_exists(settings_file)
-		puts "#{INFO} - Check if we can get the \"#{settings_file}\" file..."
-		if File.file?(settings_file)
-		        puts "#{OK} - The file \"#{settings_file}\" exists"
+	# check if we can get some file 
+	def check_if_file_exists(filename)
+		puts "#{INFO} - Check if we can get the \"#{filename}\" file..."
+		if File.file?(filename)
+		        puts "#{OK} - The file \"#{filename}\" exists"
 		else
-		        puts "#{FAIL} - Sorry, I couldn't find the file \"#{settings_file}\"."
+		        puts "#{FAIL} - Sorry, I couldn't find the file \"#{filename}\"."
 		        exit 1
 		end
 

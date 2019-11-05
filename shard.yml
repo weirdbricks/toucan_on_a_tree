@@ -1,5 +1,5 @@
 name: toucan_on_a_tree 
-version: 0.0.1
+version: 0.0.3
 
 dependencies:
   tasker:
@@ -14,3 +14,8 @@ dependencies:
   slack:
     github: manastech/crystal_slack
     branch: master
+  redis:
+    github: stefanwille/crystal-redis
+    version: ~> 2.3.0
+  popcorn:
+    github: icyleaf/popcorn

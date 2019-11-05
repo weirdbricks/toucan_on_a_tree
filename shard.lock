@@ -2,7 +2,7 @@ version: 1.0
 shards:
   bisect:
     github: spider-gazelle/bisect
-    version: 1.1.1
+    version: 1.2.0
 
   cron_parser:
     github: kostya/cron_parser
@@ -10,7 +10,15 @@ shards:
 
   kilt:
     github: jeromegn/kilt
-    version: 0.4.0
+    version: 0.6.0
+
+  pool:
+    github: ysbaddaden/pool
+    version: 0.2.3
+
+  popcorn:
+    github: icyleaf/popcorn
+    version: 0.2.2
 
   radix:
     github: luislavena/radix
@@ -19,6 +27,10 @@ shards:
   raze:
     github: samueleaton/raze
     commit: 1e63828734e0d96a3ef999876765faa66d8736c5
+
+  redis:
+    github: stefanwille/crystal-redis
+    version: 2.3.0
 
   slack:
     github: manastech/crystal_slack
