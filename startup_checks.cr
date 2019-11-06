@@ -7,8 +7,7 @@ module StartupChecks
 		if File.file?(filename)
 			puts "#{OK} - The file \"#{filename}\" exists"
 		else
-			puts "#{FAIL} - Sorry, I couldn't find the file \"#{filename}\"."
-			exit 1
+			abort "#{FAIL} - Sorry, I couldn't find the file \"#{filename}\"."
 		end
 
 	end
@@ -18,8 +17,7 @@ module StartupChecks
 		puts "#{INFO} - Check if we can get the hostname..."
 		hostname=System.hostname
 		if hostname.empty?
-			puts "#{FAIL} - Sorry, I cannot get the hostname :("
-			exit 1
+			abort "#{FAIL} - Sorry, I cannot get the hostname :("
 		else
 			puts "#{OK} - I got the hostname: \"#{hostname}\""
 		end
