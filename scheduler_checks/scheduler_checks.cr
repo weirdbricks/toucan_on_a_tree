@@ -4,24 +4,15 @@ require "redis"    # we'll use Redis as our central backend - see https://github
 require "popcorn"  # we use this to simplify type conversions - see https://github.com/icyleaf/popcorn
 require "json"     # we use this to convert our hashes into JSON for storing them into Redis
 
-require "../startup_checks.cr"
-require "./scheduler_checks_functions.cr"
-
-# setting some variables to make things look pretty
-OK   = "[  OK  ]"
-INFO = "[ INFO ]"
-FAIL = "[ FAIL ]"
-WARN = "[ WARN ]"
-
-SETTINGS_FILE = "./settings.toml" # the settings file
-CHECKS_FILE   = "./checks.toml"   # load all checks from this file
-
 ##########################################################################################
 # Include functions from files
 ##########################################################################################
 
-# include functions from the ./startup_checks.cr file
-include StartupChecks
+require "../startup.cr"
+include Startup
+require "./scheduler_checks_functions.cr"
+CHECKS_FILE = "./checks.toml"   # load all checks from this file
+
 include SchedulerRedis
 
 ##########################################################################################
@@ -29,20 +20,11 @@ include SchedulerRedis
 ##########################################################################################
 
 # the check_if_file_exists function is in ../startup_checks.cr
-check_if_file_exists(SETTINGS_FILE)
 check_if_file_exists(CHECKS_FILE)
 
 # see if we can parse the TOML files - this function is in ./startup_checks.cr
 check_if_toml_file_is_parseable(CHECKS_FILE)
-check_if_toml_file_is_parseable(SETTINGS_FILE)
 CHECKS   = TOML.parse_file(CHECKS_FILE).as(Hash)
-SETTINGS = TOML.parse_file(SETTINGS_FILE).as(Hash)
-
-redis_host = Popcorn.to_string(SETTINGS["redis_settings"].as(Hash)["redis_host"])
-redis_port = Popcorn.to_int(SETTINGS["redis_settings"].as(Hash)["redis_port"])
-
-# see if we can connect to Redis - this function is in ./startup_checks.cr
-redis_check(redis_host,redis_port)
 
 ##########################################################################################
 # Schedule checks 
@@ -83,24 +65,24 @@ CHECKS.each do |host,hash_of_checks|
 
 		# apply the schedule from the TOML file		
 		schedule.every(interval_seconds.seconds) {
-		number_of_checks=get_number_of_checks_from_redis_for_a_unique_name(redis_host,redis_port,unique_name)
+		number_of_checks=get_number_of_checks_from_redis_for_a_unique_name(REDIS_HOST, REDIS_PORT, unique_name)
 		if number_of_checks >= 10
 			puts "#{WARN} - The number of scheduled checks for \"#{unique_name}\" is too high - I'm not going to schedule an additional test!"
 			next
 			end
 			puts "#{INFO} - Queueing check \"#{unique_name}\" - Interval seconds: #{interval_seconds} ..."
-			queue_a_check_in_redis(redis_host,redis_port,jsonized_check)
+			queue_a_check_in_redis(REDIS_HOST, REDIS_PORT,jsonized_check)
 		}
 
 		# also if it's the first run, run them right now so we're all caught up yo
 		schedule.in(0.seconds) {
-			number_of_checks=get_number_of_checks_from_redis_for_a_unique_name(redis_host,redis_port,unique_name)
+			number_of_checks=get_number_of_checks_from_redis_for_a_unique_name(REDIS_HOST, REDIS_PORT, unique_name)
 			if number_of_checks >= 10 
 				puts "#{WARN} - The number of scheduled checks for \"#{unique_name}\" is too high - I'm not going to schedule an additional test!"
 				next
 			end
 			puts "#{INFO} - Queueing check \"#{unique_name}\" (Initial Check) seconds ..."
-			queue_a_check_in_redis(redis_host,redis_port,jsonized_check)
+			queue_a_check_in_redis(REDIS_HOST, REDIS_PORT, jsonized_check)
 		}
 
 	end
