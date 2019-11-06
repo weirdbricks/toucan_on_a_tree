@@ -37,4 +37,14 @@ module StartupChecks
 		puts "#{OK} - Successfully connected to Redis!"
 	end
 
+	def check_if_toml_file_is_parseable(filename)
+		puts "#{INFO} - Trying to parse the file \"#{filename}\" as TOML..."
+		begin
+			TOML.parse_file(filename).as(Hash)
+		rescue
+			abort "#{FAIL} - Sorry, I could not parse the \"#{filename}\" file."
+		end
+		puts "#{OK} - Successfully parsed the file \"#{filename}\" as TOML"
+	end
+
 end

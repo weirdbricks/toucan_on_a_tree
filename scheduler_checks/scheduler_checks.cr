@@ -32,12 +32,16 @@ include SchedulerRedis
 check_if_file_exists(SETTINGS_FILE)
 check_if_file_exists(CHECKS_FILE)
 
-puts "#{INFO} - Parsing \"#{CHECKS_FILE}\" - \"checks\" file..."
-CHECKS = TOML.parse_file(CHECKS_FILE).as(Hash)
+# see if we can parse the TOML files - this function is in ./startup_checks.cr
+check_if_toml_file_is_parseable(CHECKS_FILE)
+check_if_toml_file_is_parseable(SETTINGS_FILE)
+CHECKS   = TOML.parse_file(CHECKS_FILE).as(Hash)
+SETTINGS = TOML.parse_file(SETTINGS_FILE).as(Hash)
 
-# see if we can connect to Redis - this function is in ./scheduler_checks_functions.cr
-redis_host="127.0.0.1"
-redis_port=Popcorn.to_int("6379")
+redis_host = Popcorn.to_string(SETTINGS["redis_settings"].as(Hash)["redis_host"])
+redis_port = Popcorn.to_int(SETTINGS["redis_settings"].as(Hash)["redis_port"])
+
+# see if we can connect to Redis - this function is in ./startup_checks.cr
 redis_check(redis_host,redis_port)
 
 ##########################################################################################
