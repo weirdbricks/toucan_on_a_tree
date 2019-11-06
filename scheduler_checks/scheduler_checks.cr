@@ -1,8 +1,4 @@
-require "toml"     # reads our TOML configuration files - see https://github.com/crystal-community/toml.cr
 require "tasker"   # this helps us schedule stuff - see https://github.com/spider-gazelle/tasker
-require "redis"    # we'll use Redis as our central backend - see https://github.com/stefanwille/crystal-redis
-require "popcorn"  # we use this to simplify type conversions - see https://github.com/icyleaf/popcorn
-require "json"     # we use this to convert our hashes into JSON for storing them into Redis
 
 ##########################################################################################
 # Include functions from files
