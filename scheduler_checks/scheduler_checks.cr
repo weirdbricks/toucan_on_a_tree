@@ -60,32 +60,29 @@ CHECKS.each do |host,hash_of_checks|
 	checks.each do |check,parameters|
 		number_of_checks=number_of_checks+1
 		puts "#{INFO} - Importing check #{number_of_checks}/#{max_number_of_checks}"
-		unique_name                  = "#{host}_#{check}"
-		description                  = parameters.as(Hash)["description"]
-		nagios_plugin_command_string = parameters.as(Hash)["command_string"]
-		interval_seconds             = parameters.as(Hash)["interval_seconds"]
-		count_to_alert_on            = parameters.as(Hash)["count_to_alert_on"].to_s.to_i32 #ugly, but it was the only way I could find to cast it to the right type
-		count_to_clear               = parameters.as(Hash)["count_to_clear"].to_s.to_i32 #ugly, but it was the only way I could find to cast it to the right type
 
-                # create a hash out of the details we got
-                scheduled_check_hash = {
-                        unique_name: unique_name,
-                        description: description,
-                        nagios_plugin_command_string: nagios_plugin_command_string,
-                        interval_seconds: interval_seconds,
-                        count_to_alert_on: count_to_alert_on,
-                        count_to_clear: count_to_clear
-                }
+		# create a hash out of the details we got
+		scheduled_check_hash = {
+			unique_name:                  "#{host}_#{check}",
+			description:                  parameters.as(Hash)["description"],
+			nagios_plugin_command_string: parameters.as(Hash)["command_string"],
+			interval_seconds:             Popcorn.to_int(parameters.as(Hash)["interval_seconds"]),
+			count_to_alert_on:            Popcorn.to_int(parameters.as(Hash)["count_to_alert_on"]), #ugly, but it was the only way I could find to cast it to the right type
+			count_to_clear:               Popcorn.to_int(parameters.as(Hash)["count_to_clear"]) #ugly, but it was the only way I could find to cast it to the right type
+		}
+
+		unique_name      = scheduled_check_hash["unique_name"]
+		interval_seconds = scheduled_check_hash["interval_seconds"]
 
 		# convert the hash to json so we can push it into redis
 		jsonized_check = scheduled_check_hash.to_json
 
-                # apply the schedule from the TOML file		
-		schedule.every(("#{interval_seconds}".to_i).seconds) {
-                        number_of_checks=get_number_of_checks_from_redis_for_a_unique_name(redis_host,redis_port,unique_name)
-                        if number_of_checks >= 10
-                                puts "#{WARN} - The number of scheduled checks for \"#{unique_name}\" is too high - I'm not going to schedule an additional test!"
-				next
+		# apply the schedule from the TOML file		
+		schedule.every(interval_seconds.seconds) {
+		number_of_checks=get_number_of_checks_from_redis_for_a_unique_name(redis_host,redis_port,unique_name)
+		if number_of_checks >= 10
+			puts "#{WARN} - The number of scheduled checks for \"#{unique_name}\" is too high - I'm not going to schedule an additional test!"
+			next
 			end
 			puts "#{INFO} - Queueing check \"#{unique_name}\" - Interval seconds: #{interval_seconds} ..."
 			queue_a_check_in_redis(redis_host,redis_port,jsonized_check)
