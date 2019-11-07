@@ -12,8 +12,8 @@ module CheckRunnerFunctions
 			check_from_redis=redis.lpop("check_queue")
 		end	
 		check_from_redis_json = JSON.parse(check_from_redis.to_s)
-		return check_from_redis_json
 		redis.quit
+		return check_from_redis_json
 	end
 
 	# this function takes a unique_name and a nagios_plugin_command_string and executes it
@@ -39,6 +39,5 @@ module CheckRunnerFunctions
 		end
 		redis.quit
 	end
-
 
 end
