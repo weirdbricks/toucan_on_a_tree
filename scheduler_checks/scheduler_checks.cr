@@ -61,10 +61,10 @@ CHECKS.each do |host,hash_of_checks|
 
 		# apply the schedule from the TOML file		
 		schedule.every(interval_seconds.seconds) {
-		number_of_checks=get_number_of_checks_from_redis_for_a_unique_name(REDIS_HOST, REDIS_PORT, unique_name)
-		if number_of_checks >= 10
-			puts "#{WARN} - The number of scheduled checks for \"#{unique_name}\" is too high - I'm not going to schedule an additional test!"
-			next
+			number_of_checks=get_number_of_checks_from_redis_for_a_unique_name(REDIS_HOST, REDIS_PORT, unique_name)
+			if number_of_checks >= 10
+				puts "#{WARN} - The number of scheduled checks for \"#{unique_name}\" is too high - I'm not going to schedule an additional test!"
+				next
 			end
 			puts "#{INFO} - Queueing check \"#{unique_name}\" - Interval seconds: #{interval_seconds} ..."
 			queue_a_check_in_redis(REDIS_HOST, REDIS_PORT,jsonized_check)
